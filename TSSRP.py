@@ -6,7 +6,7 @@ class TSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, mode = 'T2'):  
         """
         srp is the main class of the library 
         Input: 
@@ -19,7 +19,7 @@ class TSSRP(SRPAbstract):
         - L: control limit, set to -1 if not initialized yet.
         """
         super().__init__(p, c, k, M, nsensors, Ks, L)
-
+        self.mode = mode
     
     def compute_log_LRT(self,a,x):
         """
