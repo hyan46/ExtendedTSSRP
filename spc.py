@@ -145,7 +145,9 @@ class spc:
         - seed_list: List of seed
         - T0: Start point of change
         - delta: change magnitude
-        Output: Monitoring Statistics of size  (n_batch*nseed) * Tmax
+        Output:
+        - statistics_all: Monitoring Statistics of size  (n_batch*nseed) * Tmax
+        - T_all: Output the Run Length
         """        
         nsim = len(seed_list)
         statistics_all = np.zeros((nsim*n_batch, Tmax))
