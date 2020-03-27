@@ -6,7 +6,7 @@ class ExtendedTSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1,mode='T2'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):  
         """
         srp is the main class of the library 
         Input: 
@@ -18,8 +18,7 @@ class ExtendedTSSRP(SRPAbstract):
         - Ks: Number of selected failure mode
         - L: control limit, set to -1 if not initialized yet.
         """
-        super().__init__(p, c, k, M, nsensors, Ks, L)
-        self.mode = mode
+        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
     
     def compute_log_LRT(self,a,x):
         """
@@ -53,7 +52,7 @@ class ExtendedTSSRP(SRPAbstract):
             x_sample[:,ik] = np.random.randn(1,p) + M[:,ik]*c
 
         E_sample = 2*c*M*x_sample - c**2*M**2 
-        if mode == 'T2':
+        if mode == 'T2' or mode == 'T1':
             individualS = np.sum(E_sample[:,failureModeTopIdx],1)
             sensingIdx = np.argsort(-individualS)[:nsensors]  
         elif mode == 'T1_Max':
@@ -62,7 +61,7 @@ class ExtendedTSSRP(SRPAbstract):
             S_sort= -np.sort(-S, axis = 0)
             kmax = np.argmax(np.sum(S_sort[:nsensors,:] ,0))
             sensingIdx = np.argsort(-S[:,kmax])[:nsensors]
-        elif mode == 'T1':
+        elif mode == 'T1_App':
             E_sample = 2*c*M*x_sample - c**2*M**2 
             S = np.log1p(np.exp(r))[np.newaxis,failureModeTopIdx]*E_sample[:,failureModeTopIdx]
             p = S.shape[0]

@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.3.1
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -51,13 +51,18 @@ from TSSRP import TSSRP
 from Oracle import Oracle
 from spc import spc
 truesensidx = np.arange(nsensors)
-nmodels = 3
+nmodels = 6
 model_all = [[] for i in range(nmodels)]
 
-model_all[0] = ExtendedTSSRP(p, c, k,M,nsensors,Ks)
-model_all[1] = TSSRP(p, c, k,M,nsensors,Ks)
-model_all[2] = Oracle(truesensidx, p, c, k, M, nsensors, Ks, L=-1)
-model_name = ['ETSSRP_srp_model','TSSRP_srp_model','orcale_model']
+# p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'
+    
+model_all[0] = ExtendedTSSRP(p, c, k,M,nsensors,Ks,L=-1,chart = 'srp',mode='T2')
+model_all[1] = ExtendedTSSRP(p, c, k,M,nsensors,Ks,L=-1,chart = 'cusum')
+model_all[2] = TSSRP(p, c, k,M,nsensors,Ks,L=-1,chart='srp',mode='T2')
+model_all[3] = TSSRP(p, c, k,M,nsensors,Ks,L=-1,chart='cusum',mode='T2')
+model_all[4] = Oracle(truesensidx, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode='T2')
+model_all[5] = ExtendedTSSRP(p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode='T1')
+model_name = ['ETSSRP_srp_model','ETSCUSUM_srp_model','TSSRP_srp_model','TSCUSUM_srp_model','orcale_model','ETSCUSUM_srp_model_T1']
 
 # -
 
@@ -69,15 +74,15 @@ L = np.zeros(nmodels)
 n_batch_phaseI = 20
 ARL0 = 200
 Tmax = 500
-seed_list = np.arange(10)
-for i,imodel in enumerate(model_all): 
+seed_list = np.arange(50)
+for i in [5]: 
     print(model_name[i])
-    monitor_statistics = lambda x, T0, L: imodel.compute_monitor_batch(x,T0, L)
+    monitor_statistics = lambda x, T0, L: model_all[i].compute_monitor_batch(x,T0, L)
     spc_model_all[i] = spc(monitor_statistics,data_gen_func0, data_gen_func1)
     L[i] = spc_model_all[i].phase1(n_batch_phaseI, Tmax, seed_list,r=1000,ARL0=ARL0)
     
 import pickle
-PIK = "L.pickle"
+PIK = "L_5.pickle"
 with open(PIK, "wb") as f:
     pickle.dump(L, f)
 
@@ -90,32 +95,39 @@ with open(PIK, "wb") as f:
 # +
 delta_all =  [0,0.1,0.2,0.3,0.4,0.5,0.6,0.8,1,1.2,1.5,1.8,2,3,4]
 lendelta = len(delta_all)
-n_batch = 20
+n_batch = 50
 ARL_all = np.zeros((nmodels,lendelta))
-for i,imodel in enumerate(model_all): 
+for i in [5]: 
     print(model_name[i])    
     for j,jdelta in enumerate(delta_all):
         print(jdelta)
-        T_all, RL = spc_model_all[i].phase2( n_batch, Tmax, np.arange(100,110), 20, delta=jdelta)
+        T_all, RL = spc_model_all[i].phase2( n_batch, Tmax, np.arange(100,120), 20, delta=jdelta)
         ARL_all[i,j] = np.mean(RL)
 
 import pickle
-PIK = "ARL.pickle"
+PIK = "ARL_5.pickle"
 with open(PIK, "wb") as f:
     pickle.dump(ARL_all, f)
 
 # +
 import numpy as np
 import pickle
+delta_all =  [0,0.1,0.2,0.3,0.4,0.5,0.6,0.8,1,1.2,1.5,1.8,2,3,4]
+model_name = ['ETSSRP_srp_model','ETSCUSUM_srp_model','TSSRP_srp_model','TSCUSUM_srp_model','orcale_model','TSSRP_srp_model_T1']
+
 ARL_all = pickle.load( open( "ARL.pickle", "rb" ) )
- 
+ARL_5 = pickle.load( open( "ARL_5.pickle", "rb" ) )
+ARL_all_new = np.concatenate((ARL_all,ARL_5[[5],:]),0)
+nmodels = 6
 import matplotlib.pyplot as plt
 # %matplotlib inline
 for i in range(nmodels):
-    plt.plot(delta_all,ARL_all[i],label=model_name[i])
+    plt.plot(delta_all[2:-2],ARL_all_new[i,2:-2],label=model_name[i])
+    plt.xlabel('Chagne Magnitude delta')
+    plt.ylabel('ARL_1')
     plt.legend()
 # -
-ARL_all[:,-3]
+ARL_5.shape
 
 
 

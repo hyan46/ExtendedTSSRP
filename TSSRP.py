@@ -6,7 +6,7 @@ class TSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, mode = 'T2'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):  
         """
         srp is the main class of the library 
         Input: 
@@ -18,8 +18,7 @@ class TSSRP(SRPAbstract):
         - Ks: Number of selected failure mode
         - L: control limit, set to -1 if not initialized yet.
         """
-        super().__init__(p, c, k, M, nsensors, Ks, L)
-        self.mode = mode
+        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
     
     def compute_log_LRT(self,a,x):
         """
@@ -33,7 +32,7 @@ class TSSRP(SRPAbstract):
         return a@E
 
 
-    def compute_index(self,failureModeTopIdx,r=1,mode='T2'):
+    def compute_index(self,failureModeTopIdx,r=1):
         """        
         Compute the index function to decide the best sensing allocation
         Input: 
@@ -41,13 +40,13 @@ class TSSRP(SRPAbstract):
         - failureModeTopIdx: The most important failure index
         - mode: Types of monitoring statistics
         """        
-        
+
         c = self.c
         nsensors = self.nsensors
 
-        if mode == 'T2':
+        if self.mode == 'T2':
             sensingIdx = failureModeTopIdx
-        elif mode == 'T1':
+        elif self.mode == 'T1':
             individualS = np.sum(np.exp(r[failureModeTopIdx]))
             sensingIdx = np.argsort(-individualS)[:nsensors]  
         return sensingIdx

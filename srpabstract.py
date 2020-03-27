@@ -6,7 +6,7 @@ class SRPAbstract:
     The abstract class for Thompas sampling SRP statistics
     """
     
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1):        
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):        
         """
         srp is the main class of the library 
         Input: 
@@ -24,7 +24,9 @@ class SRPAbstract:
         self.M = M
         self.nsensors = nsensors
         self.Ks = Ks
-    
+        self.chart = chart
+        self.mode = mode 
+        
     def compute_log_LRT(self,a,x):
         """
         Compute the log liklihood ratio of 
@@ -60,27 +62,36 @@ class SRPAbstract:
         p = self.p
         nsensors = self.nsensors
 
-        srp = np.zeros((Tmax,k))
+        sequential_statistics = np.zeros((Tmax,k))
         a = np.zeros(p)
-        srp_sum = np.zeros((Tmax))
-        cumsum_sum = np.zeros((Tmax))
+        sequential_statistics_topRsum = np.zeros((Tmax))
         individualS = np.random.randn(k)
         failureModeTopIdx = np.argsort(-individualS)[:Ks]
         sensor_selection_history = np.zeros((Tmax,nsensors)); 
         failure_mode_history = np.zeros((Tmax,Ks))
         for i in range(Tmax):
-            srp[i,:] = np.log1p(np.exp(srp[i-1,:])) + self.compute_log_LRT(a,x[[i],:].T)
-            failureModeTopIdx = np.argsort(-srp[i,:])[:Ks]  
-            sensingIdx = self.compute_index(failureModeTopIdx,r=srp[i-1,:])
+            if self.chart == 'srp':
+                sequential_statistics[i,:] = np.log1p(np.exp(sequential_statistics[i-1,:])) + self.compute_log_LRT(a,x[[i],:].T)
+            elif self.chart == 'cusum':
+                sequential_statistics[i,:] = np.maximum(sequential_statistics[i-1,:] + self.compute_log_LRT(a,x[[i],:].T),0)
+                
+            failureModeTopIdx = np.argsort(-sequential_statistics[i,:])[:Ks]  
+            sensingIdx = self.compute_index(failureModeTopIdx,r=sequential_statistics[i-1,:])
             a = np.zeros(p)
             a[sensingIdx] = 1
             sensor_selection_history[i,:] = sensingIdx
             failure_mode_history[i,:] = failureModeTopIdx
-            srp_sum[i] = logsumexp(srp[i,failureModeTopIdx])
+            if self.chart == 'srp' and self.mode == 'T1':
+                sequential_statistics_topRsum[i] = logsumexp(sequential_statistics[i,failureModeTopIdx])
+            elif self.chart == 'srp' and self.mode == 'T2':
+                sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdx])
+            elif self.chart == 'cusum':                
+                sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdx])
+            
             if L != -1:
-                if srp_sum[i]>L and i>T0:
+                if sequential_statistics_topRsum[i]>L and i>T0:
                     break
-        return srp_sum, sensor_selection_history, failure_mode_history, i
+        return sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i
 
     def compute_monitor_batch(self,x, T0, L):
         """        
