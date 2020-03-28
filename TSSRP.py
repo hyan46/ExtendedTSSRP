@@ -28,7 +28,8 @@ class TSSRP(SRPAbstract):
         - x: sensing data, must be in format of p * 1
         """
         c = self.c 
-        E = 2*c*x - c**2
+        M = np.eye(self.p)
+        E = 2*c*M*x - c**2*M**2
         return a@E
 
 

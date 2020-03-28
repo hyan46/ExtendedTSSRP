@@ -6,7 +6,7 @@ class ExtendedTSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',sample_mode = 'sample'):  
         """
         srp is the main class of the library 
         Input: 
@@ -19,6 +19,8 @@ class ExtendedTSSRP(SRPAbstract):
         - L: control limit, set to -1 if not initialized yet.
         """
         super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
+
+        self.sample_mode = sample_mode
     
     def compute_log_LRT(self,a,x):
         """
@@ -33,7 +35,7 @@ class ExtendedTSSRP(SRPAbstract):
         return a@E
 
 
-    def compute_index(self,failureModeTopIdx,r=1,mode='T2'):
+    def compute_index(self,failureModeTopIdx,r=1):
         """        
         Compute the index function to decide the best sensing allocation
         Input: 
@@ -45,12 +47,17 @@ class ExtendedTSSRP(SRPAbstract):
         c = self.c
         p = self.p
         k = self.k
+        mode = self.mode
         nsensors = self.nsensors
-        
         x_sample = np.zeros((p,k))
-        for ik in range(k):
-            x_sample[:,ik] = np.random.randn(1,p) + M[:,ik]*c
 
+        if self.sample_mode == 'sample':
+            for ik in range(k):
+                x_sample[:,ik] = np.random.randn(1,p) + M[:,ik]*c
+        elif self.sample_mode == 'mean':
+            for ik in range(k):
+                x_sample[:,ik] = M[:,ik]*c
+        
         E_sample = 2*c*M*x_sample - c**2*M**2 
         if mode == 'T2' or mode == 'T1':
             individualS = np.sum(E_sample[:,failureModeTopIdx],1)

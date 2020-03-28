@@ -91,7 +91,7 @@ class SRPAbstract:
             if L != -1:
                 if sequential_statistics_topRsum[i]>L and i>T0:
                     break
-        return sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i
+        return sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i, sequential_statistics
 
     def compute_monitor_batch(self,x, T0, L):
         """        
@@ -106,7 +106,7 @@ class SRPAbstract:
         Tmonit_stat = np.zeros((nbatch,Tmax))
         Tout_all = np.zeros(nbatch)
         for i,idata in enumerate(x):
-            srp,a,b,Tout= self.compute_monitoring_statistics(idata,T0, L)
+            srp,a,b,Tout,c= self.compute_monitoring_statistics(idata,T0, L)
             Tmonit_stat[i] = srp
             Tout_all[i] = Tout
         return Tmonit_stat, Tout_all

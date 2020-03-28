@@ -2,7 +2,7 @@ import pdb
 import pandas as pd
 import numpy as np
 from scipy.optimize import bisect
-from tqdm import tnrange, tqdm_notebook, tqdm
+# from tqdm import tnrange, tqdm_notebook, tqdm
 
 class spc:
     """
@@ -63,7 +63,7 @@ class spc:
 
         nsim = len(seed_list)
         statistics_all = np.zeros((nsim*n_batch, Tmax))
-        for i,iseed in enumerate(tqdm(seed_list)):
+        for i,iseed in enumerate(seed_list):
             data = self.data_gen_func0(n_batch, Tmax, iseed)
             statistics, Tout = self.apply_monitoring_statistics(data)
             statistics_all[(n_batch*i):(n_batch*(i+1)),:] = statistics
@@ -152,7 +152,7 @@ class spc:
         nsim = len(seed_list)
         statistics_all = np.zeros((nsim*n_batch, Tmax))
         T_all  = np.zeros(nsim*n_batch)
-        for i,iseed in enumerate(tqdm(seed_list)):
+        for i,iseed in enumerate(seed_list):
             data = self.data_gen_func1(n_batch, Tmax, iseed, T0=T0, delta = delta)
             statistics, Tout = self.apply_monitoring_statistics(data, T0, self.L)
             statistics_all[(n_batch*i):(n_batch*(i+1)),:] = statistics
