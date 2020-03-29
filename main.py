@@ -137,23 +137,24 @@ import numpy as np
 import pickle
 # delta_all =  [0,0.1,0.2,0.3,0.4,0.5,0.6,0.8,1,1.2,1.5,1.8,2,3,4]
 delta_all =  [0.4,0.8,1,1.5,2,3,4]
-model_name = ['ETSSRP_srp_model','ETSCUSUM_srp_model','TSSRP_srp_model','TSCUSUM_srp_model','orcale_model','ETSSRP_srp_model_T1','ETSSRP_srp_model_mean','ETSCUSUM_srp_model_mean']
-experiment_log = pickle.load( open( "2020Mar27_2215_exp.pickle", "rb" ) )
+model_name = ['E_srp_sample','E_srp_mean','E_cusum','srp_T2']
+experiment_log = pickle.load( open( "2020Mar28_1020_exp.pickle", "rb" ) )
 ARL_all_new = experiment_log['ARL1']
 
 #ARL_5 = pickle.load( open( "ARL_5.pickle", "rb" ) )
 #ARL_67 = pickle.load( open( "ARL_67.pickle", "rb" ) )
 #ARL_all_new = np.concatenate((ARL_all,ARL_5[[5],:]),0)
 #ARL_all_new = np.concatenate((ARL_all_new,ARL_67[[6,7],:]),0)
-nmodels = 8
+nmodels = 4
 import matplotlib.pyplot as plt
 # %matplotlib inline
-for i in range(nmodels):
-    plt.plot(delta_all,ARL_all_new[i,:],label=model_name[i])
+for i in [0,1,3]:
+    plt.plot(delta_all,ARL_all_new[i,:],'x-',label=model_name[i])
     plt.xlabel('Chagne Magnitude delta')
     plt.ylabel('ARL_1')
     plt.legend()
 # -
+
 
 
 
