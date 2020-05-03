@@ -30,9 +30,14 @@ class ExtendedTSSRP(SRPAbstract):
         - x: sensing data, must be in format of p * 1
         """
         c = self.c 
-        M = self.M
-        E = 2*c*M*x - c**2*M**2 
-        return a@E
+        M = self.M    
+        E = 2*c*M*x - c**2*M**2         
+        if self.selectmode == 'indi':
+            result = a@E
+        elif self.selectmode == 'cs':
+            E = 1
+        
+        return result
 
 
     def compute_index(self,failureModeTopIdx,r=1):
@@ -75,6 +80,8 @@ class ExtendedTSSRP(SRPAbstract):
             f= lambda a: logsumexp(S.T@a)      
             sensingIdx = greedy(f,p,nsensors)
             sensingIdx = sensingIdx.astype(int)
+            
+            
         return sensingIdx
 
 

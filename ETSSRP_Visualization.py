@@ -25,7 +25,7 @@ k = 50 # Number of failuer Mode
 seed_list_OC = 20 # Seed of data generation
 sel_failure_mode = [10,20,30]    #  Failure Mode
 M = np.kron(np.eye(k),np.ones((int(p/k),1))) # Mean Failure Modes
-Ks = 10  #Select Top Ks control chart
+Ks = 3  #Select Top Ks control chart
 nsensors = 5 # Number of selected sensors
 ARL0 = 200 # Target ARL-IC
 Tmax = 500 # Maximum length
@@ -60,7 +60,8 @@ def data_gen_func1(n_batch, Tmax, seed, T0, delta):
 # ## Failure Mode Visualization
 
 import matplotlib.pyplot as plt
-_ = plt.plot(M)
+#_ = plt.plot(M)
+plt.plot(M[:,49])
 
 # +
 from ExtendedTSSRP import ExtendedTSSRP
@@ -125,7 +126,7 @@ for plotfailuremode in [0,40,10,20,30]:
     for ii,i in enumerate(mode):
         numSensorInFailureMode[ii] = np.sum([j ==plotfailuremode for j in i])
     plt.title('Failure Mode {} SRP statistics'.format(plotfailuremode))
-    _ = plt.plot(numSensorInFailureMode*3,label = '# of Observed Sensors')
+    _ = plt.plot(numSensorInFailureMode,label = '# of Observed Sensors')
 
 
 # ## Number of observed sensors in the failure mode
@@ -137,6 +138,8 @@ numSensorInFailureMode = np.zeros(Tmax)
 for ii,i in enumerate(mode):
     numSensorInFailureMode[ii] = np.sum([j in sel_failure_mode for j in i])
 plt.plot(numSensorInFailureMode)
+
+sensor_selection_history/50
 
 # ## Top-R Failure Mode visualization
 #

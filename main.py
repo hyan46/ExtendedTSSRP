@@ -65,7 +65,7 @@ def data_gen_func1(n_batch, Tmax, seed, T0, delta):
 from ExtendedTSSRP import ExtendedTSSRP
 from TSSRP import TSSRP
 from Oracle import Oracle
-from spc import spc
+from spc.spc import spc
 truesensidx = np.arange(nsensors)
 nmodels = 4
 model_all = [[] for i in range(nmodels)]
@@ -170,6 +170,9 @@ for i in [0,1,3]:
 
 
 
+
+a = np.array([0,0,1,0,1])
+np.where(a)[0]
 
 
 

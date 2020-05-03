@@ -6,7 +6,7 @@ class SRPAbstract:
     The abstract class for Thompas sampling SRP statistics
     """
     
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):        
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi'):        
         """
         srp is the main class of the library 
         Input: 
@@ -26,6 +26,7 @@ class SRPAbstract:
         self.Ks = Ks
         self.chart = chart
         self.mode = mode 
+        self.selectmode = selectmode
         
     def compute_log_LRT(self,a,x):
         """
@@ -63,12 +64,18 @@ class SRPAbstract:
         nsensors = self.nsensors
 
         sequential_statistics = np.zeros((Tmax,k))
-        a = np.zeros(p)
         sequential_statistics_topRsum = np.zeros((Tmax))
         individualS = np.random.randn(k)
         failureModeTopIdx = np.argsort(-individualS)[:Ks]
-        sensor_selection_history = np.zeros((Tmax,nsensors)); 
         failure_mode_history = np.zeros((Tmax,Ks))
+        
+        if self.selectmode == 'indi':
+            a = np.zeros(p)
+            sensor_selection_history = np.zeros((Tmax,nsensors)); 
+        elif self.selectmode == 'cs':
+            a = np.zeros(p)
+            sensor_selection_history = np.zeros((Tmax,nsensors,p)); 
+        
         for i in range(Tmax):
             if self.chart == 'srp':
                 sequential_statistics[i,:] = np.log1p(np.exp(sequential_statistics[i-1,:])) + self.compute_log_LRT(a,x[[i],:].T)
@@ -76,11 +83,15 @@ class SRPAbstract:
                 sequential_statistics[i,:] = np.maximum(sequential_statistics[i-1,:] + self.compute_log_LRT(a,x[[i],:].T),0)
                 
             failureModeTopIdx = np.argsort(-sequential_statistics[i,:])[:Ks]  
-            sensingIdx = self.compute_index(failureModeTopIdx,r=sequential_statistics[i-1,:])
-            a = np.zeros(p)
-            a[sensingIdx] = 1
-            sensor_selection_history[i,:] = sensingIdx
-            failure_mode_history[i,:] = failureModeTopIdx
+            sensingSel = self.compute_index(failureModeTopIdx,r=sequential_statistics[i-1,:])
+            if self.selectmode == 'indi':
+                a = np.zeros(p)
+                a[sensingSel] = 1
+            elif self.selectmode == 'cs':            
+                a = sensingSel
+                
+            sensor_selection_history[i] = sensingSel
+            failure_mode_history[i] = failureModeTopIdx
             if self.chart == 'srp' and self.mode == 'T1':
                 sequential_statistics_topRsum[i] = logsumexp(sequential_statistics[i,failureModeTopIdx])
             elif self.chart == 'srp' and self.mode == 'T2':
