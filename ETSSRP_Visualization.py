@@ -17,20 +17,33 @@
 
 # +
 import numpy as np
+from Bspline import bsplineBasis
 
-
-p = 1000 # Number of dimensions
-c = 1 # Target meanshift is c * M
-k = 50 # Number of failuer Mode
-seed_list_OC = 20 # Seed of data generation
-sel_failure_mode = [10,20,30]    #  Failure Mode
-M = np.kron(np.eye(k),np.ones((int(p/k),1))) # Mean Failure Modes
+case = 'iid'
+if case == 'iid':
+    p = 900 # Number of dimensions
+    c = 1 # Target meanshift is c * M
+    k = 30 # Number of failuer Mode
+    seed_list_OC = 20 # Seed of data generation
+    sel_failure_mode = [9,19,29]    #  Failure Mode
+    M = np.kron(np.eye(k),np.ones((int(p/k),1))) # Mean Failure Modes
+else:
+    p = 900
+    c = 1 
+    k0 = 5 # Can be changed
+    k = k0**2
+    B1 = bsplineBasis(30,k0-1,2)
+    M = np.kron(B1,B1)
+    sel_failure_mode = [3,11,22]    #  Failure Mode
 Ks = 3  #Select Top Ks control chart
 nsensors = 5 # Number of selected sensors
 ARL0 = 200 # Target ARL-IC
 Tmax = 500 # Maximum length
 
 # -
+
+M.shape
+
 
 # ## Data generation Function
 # Data are generated as i.i.d normal before change. 
@@ -61,7 +74,7 @@ def data_gen_func1(n_batch, Tmax, seed, T0, delta):
 
 import matplotlib.pyplot as plt
 #_ = plt.plot(M)
-plt.plot(M[:,49])
+plt.plot(M[:19])
 
 # +
 from ExtendedTSSRP import ExtendedTSSRP
@@ -117,7 +130,7 @@ plt.imshow(sequential_statistics,aspect='auto')
 # ## Look into each SRP statistics for different failure mode
 #
 
-for plotfailuremode in [0,40,10,20,30]:
+for plotfailuremode in [0]+ sel_failure_mode:
     arr = np.array([plotfailuremode in i for i in sensor_selection_history])
     plt.figure()    
     plt.plot(sequential_statistics[:,plotfailuremode],label='SRP statistics')
@@ -138,6 +151,39 @@ numSensorInFailureMode = np.zeros(Tmax)
 for ii,i in enumerate(mode):
     numSensorInFailureMode[ii] = np.sum([j in sel_failure_mode for j in i])
 plt.plot(numSensorInFailureMode)
+
+
+# +
+import numpy as np
+sens = np.array(x*0)
+
+sens_sel = sensor_selection_history[t].astype(int)
+sens_sel
+sens = x*0
+sens[isample][t][sens_sel]
+
+# +
+isample = 0
+ims = []
+import matplotlib.animation as animation
+fig = plt.figure()
+
+for t in range(200):
+    sens_sel = sensor_selection_history[t].astype(int)
+    sens = x*0
+    sens[isample][t][sens_sel] = 1
+    im = plt.imshow(sens[isample][t].reshape([30,30]))
+    ims.append([im])
+
+ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
+                                repeat_delay=1000)
+plt.show()
+
+ani.save('dynamic_images.mp4')
+
+# -
+
+# ## Failure Mode
 
 sensor_selection_history/50
 
