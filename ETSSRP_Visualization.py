@@ -19,30 +19,38 @@
 import numpy as np
 from Bspline import bsplineBasis
 
-case = 'iid'
-if case == 'iid':
+#case = 'nonoverlap'
+case = 'spline'
+if case == 'nonoverlap':
     p = 900 # Number of dimensions
     c = 1 # Target meanshift is c * M
-    k = 30 # Number of failuer Mode
+    k = 30 # Number of failuer Modes
     seed_list_OC = 20 # Seed of data generation
     sel_failure_mode = [9,19,29]    #  Failure Mode
     M = np.kron(np.eye(k),np.ones((int(p/k),1))) # Mean Failure Modes
 else:
     p = 900
     c = 1 
-    k0 = 5 # Can be changed
-    k = k0**2
-    B1 = bsplineBasis(30,k0-1,2)
+    k0 = 6 # Can be changed (Knots)
+    k = k0**2 # Failre mode number 
+    degree = 4 # Overlap region? (Size of B-spline basis) 
+    B1 = bsplineBasis(30,k0-degree+1,degree)
     M = np.kron(B1,B1)
     sel_failure_mode = [3,11,22]    #  Failure Mode
-Ks = 3  #Select Top Ks control chart
+Ks = 5  #Select Top Ks control chart
 nsensors = 5 # Number of selected sensors
 ARL0 = 200 # Target ARL-IC
 Tmax = 500 # Maximum length
 
 # -
 
-M.shape
+ifailuremode = 14
+# plt.plot(B1)
+plt.imshow(M[:,ifailuremode].reshape([30,30]))
+
+plt.plot(B1)
+
+plt.imshow((M[:,3] + M[:,11] +  M[:,22]).reshape([30,30]))
 
 
 # ## Data generation Function
