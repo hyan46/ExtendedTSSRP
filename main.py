@@ -171,8 +171,10 @@ for i in [0,1,3]:
 
 
 
+
 a = np.array([0,0,1,0,1])
 np.where(a)[0]
+
 
 
 
