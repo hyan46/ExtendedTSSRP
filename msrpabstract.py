@@ -1,13 +1,13 @@
 import numpy as np
-from scipy.special import logsumexp 
+from scipy.special import logsumexp
+
 
 class SRPAbstract:
     """
     The abstract class for Thompas sampling SRP statistics
     """
-    
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi',decisionchart=1):        
 
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi',decisionchart=1):        
         """
         srp is the main class of the library 
         Input: 
@@ -26,11 +26,10 @@ class SRPAbstract:
         self.nsensors = nsensors
         self.Ks = Ks
         self.chart = chart
-        self.mode = mode 
+        self.mode = mode
         self.selectmode = selectmode
-        self.decisionchart = decisionchart
-        
-    def compute_log_LRT(self,a,x):
+
+    def compute_log_LRT(self, a, x):
         """
         Compute the log liklihood ratio of 
         Input: 
@@ -39,84 +38,92 @@ class SRPAbstract:
         """
         pass
 
-    def compute_index(self,failureModeTopIdx,r=1,mode='T2'):
+    def compute_index(self, failureModeTopIdx, r=1, mode='T2'):
         """        
         Compute the index function to decide the best sensing allocation
         Input: 
         - x_sample: sampled version of x, must be in format of p * 1 or p * k
         - failureModeTopIdx: The most important failure index
         - mode: Types of monitoring statistics
-        """        
+        """
         pass
-    
-    def compute_monitoring_statistics(self,x,T0,L):
+
+    def compute_monitoring_statistics(self, x, T0, L):
         """        
         Compute monitoring statistics
         Input: 
         - x: input data
         - T0: time of change
         - L: control limit
-        """        
+        """
         Tmax = x.shape[0]
         k = self.k
-        Ks = self.Ks                
+        Ks = self.Ks
         M = self.M
         c = self.c
         p = self.p
         nsensors = self.nsensors
+        pi = 0.01 # prior of transition probability
 
-        sequential_statistics = np.zeros((Tmax,k))
+        sequential_statistics = np.zeros((Tmax, k, k + 1))
         sequential_statistics_topRsum = np.zeros((Tmax))
-        individualS = np.random.randn(k)
-        failureModeTopIdx = np.argsort(-individualS)[:Ks]
-        failure_mode_history = np.zeros((Tmax,Ks))
-        
+        failure_mode_history = np.zeros((Tmax, Ks))
+        Ft = np.zeros((Tmax,k))
+
         if self.selectmode == 'indi':
             a = np.zeros(p)
-            sensor_selection_history = np.zeros((Tmax,nsensors)); 
+            sensor_selection_history = np.zeros((Tmax, nsensors));
         elif self.selectmode == 'cs':
             a = np.zeros(p)
-            sensor_selection_history = np.zeros((Tmax,nsensors,p)); 
-        
-        for i in range(Tmax):
+            sensor_selection_history = np.zeros((Tmax, nsensors, p));
+
+        for t in range(Tmax):
             if self.chart == 'srp':
-                sequential_statistics[i,:] = np.log1p(np.exp(sequential_statistics[i-1,:])) + self.compute_log_LRT(a,x[[i],:].T)
-            elif self.chart == 'cusum':
-                sequential_statistics[i,:] = np.maximum(sequential_statistics[i-1,:] + self.compute_log_LRT(a,x[[i],:].T),0)
-                
-            failureModeTopIdx = np.argsort(-sequential_statistics[i,:])[:Ks]  
-            sensingSel = self.compute_index(failureModeTopIdx,r=sequential_statistics[i-1,:])
+                if t >= 1:
+                    phi[1:] = Ft[t-1] + pi * (1 - Ft[t-1])
+                    phi[0] = np.prod(1 - phi[1:])
+                else:
+                    sensingSel = np.random.randint(p,size=nsensors)
+                    a[sensingSel] = 1
+                    phi = np.ones(k + 1) * pi
+                for i in range(k + 1):
+
+                    sequential_statistics[t, :, i] = np.exp(
+                        np.log(phi[i] / phi[1:]) + self.compute_log_LRT(a, x[[t], :].T, i))
+
+            Ft[t] = 1 / np.sum(sequential_statistics[t, :, :], axis=1)
+            failureModeTopIdx = np.argsort(-Ft[t])[:Ks]
+            sensingSel = self.compute_index(failureModeTopIdx, Ft[t], pi, r=sequential_statistics[t, :, :])
             if self.selectmode == 'indi':
                 a = np.zeros(p)
                 a[sensingSel] = 1
-            elif self.selectmode == 'cs':            
+            elif self.selectmode == 'cs':
                 a = sensingSel
-                
-            sensor_selection_history[i] = sensingSel
-            failure_mode_history[i] = failureModeTopIdx
+            sensor_selection_history[t] = sensingSel
+            failure_mode_history[t] = failureModeTopIdx
 
-            failureModeTopIdxDec = np.argsort(-sequential_statistics[i,:])[:self.decisionchart]  
-            sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdxDec])
+            
+            sequential_statistics_topRsum[t] = np.sum(Ft[t][failureModeTopIdx])
+
             if L != -1:
-                if sequential_statistics_topRsum[i]>L and i>T0:
+                if sequential_statistics_topRsum[t] > L and t > T0:
                     break
-        return sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i, sequential_statistics
+        return sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, t, sequential_statistics
 
-    def compute_monitor_batch(self,x, T0, L):
+    def compute_monitor_batch(self, x, T0, L):
         """        
         Compute monitoring statistics for batch of samples
         Input: 
         - x: Batched input data
         - T0: time of change
         - L: control limit
-        """                
+        """
         nbatch = x.shape[0]
         Tmax = x.shape[1]
-        Tmonit_stat = np.zeros((nbatch,Tmax))
+        Tmonit_stat = np.zeros((nbatch, Tmax))
         Tout_all = np.zeros(nbatch)
-        for i,idata in enumerate(x):
-            srp,a,b,Tout,c= self.compute_monitoring_statistics(idata,T0, L)
+        for i, idata in enumerate(x):
+            srp, a, b, Tout, c = self.compute_monitoring_statistics(idata, T0, L)
             Tmonit_stat[i] = srp
             Tout_all[i] = Tout
         return Tmonit_stat, Tout_all
-    

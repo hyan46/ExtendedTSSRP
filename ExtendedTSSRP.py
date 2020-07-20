@@ -6,7 +6,7 @@ class ExtendedTSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',sample_mode = 'sample'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',sample_mode = 'sample', selectmode = 'indi',decisionchart=1):  
         """
         srp is the main class of the library 
         Input: 
@@ -18,8 +18,7 @@ class ExtendedTSSRP(SRPAbstract):
         - Ks: Number of selected failure mode
         - L: control limit, set to -1 if not initialized yet.
         """
-        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
-
+        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode, selectmode, decisionchart)
         self.sample_mode = sample_mode
     
     def compute_log_LRT(self,a,x):
@@ -36,7 +35,6 @@ class ExtendedTSSRP(SRPAbstract):
             result = a@E
         elif self.selectmode == 'cs':
             E = 1
-        
         return result
 
 
@@ -62,8 +60,9 @@ class ExtendedTSSRP(SRPAbstract):
         elif self.sample_mode == 'mean':
             for ik in range(k):
                 x_sample[:,ik] = M[:,ik]*c
-        
+                
         E_sample = 2*c*M*x_sample - c**2*M**2 
+        
         if mode == 'T2' or mode == 'T1':
             individualS = np.sum(E_sample[:,failureModeTopIdx],1)
             sensingIdx = np.argsort(-individualS)[:nsensors]  
@@ -80,8 +79,6 @@ class ExtendedTSSRP(SRPAbstract):
             f= lambda a: logsumexp(S.T@a)      
             sensingIdx = greedy(f,p,nsensors)
             sensingIdx = sensingIdx.astype(int)
-            
-            
         return sensingIdx
 
 
