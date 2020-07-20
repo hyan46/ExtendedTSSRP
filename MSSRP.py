@@ -7,7 +7,7 @@ class MSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',sample_mode = 'sample'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',sample_mode = 'sample',selectmode='indi', decisionchart = 1):  
         """
         srp is the main class of the library 
         Input: 
@@ -19,7 +19,7 @@ class MSSRP(SRPAbstract):
         - Ks: Number of selected failure mode
         - L: control limit, set to -1 if not initialized yet.
         """
-        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
+        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode,selectmode,decisionchart)
 
         self.sample_mode = sample_mode
     

@@ -7,7 +7,7 @@ class SRPAbstract:
     The abstract class for Thompas sampling SRP statistics
     """
 
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart='srp', mode='T2', selectmode='indi'):
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi',decisionchart=1):        
         """
         srp is the main class of the library 
         Input: 
@@ -102,6 +102,7 @@ class SRPAbstract:
             sensor_selection_history[t] = sensingSel
             failure_mode_history[t] = failureModeTopIdx
 
+            
             sequential_statistics_topRsum[t] = np.sum(Ft[t][failureModeTopIdx])
 
             if L != -1:

@@ -6,7 +6,8 @@ class SRPAbstract:
     The abstract class for Thompas sampling SRP statistics
     """
     
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi'):        
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi',decisionchart=1):        
+
         """
         srp is the main class of the library 
         Input: 
@@ -27,6 +28,7 @@ class SRPAbstract:
         self.chart = chart
         self.mode = mode 
         self.selectmode = selectmode
+        self.decisionchart = decisionchart
         
     def compute_log_LRT(self,a,x):
         """
@@ -92,13 +94,9 @@ class SRPAbstract:
                 
             sensor_selection_history[i] = sensingSel
             failure_mode_history[i] = failureModeTopIdx
-            if self.chart == 'srp' and self.mode == 'T1':
-                sequential_statistics_topRsum[i] = logsumexp(sequential_statistics[i,failureModeTopIdx])
-            elif self.chart == 'srp' and self.mode == 'T2':
-                sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdx])
-            elif self.chart == 'cusum':                
-                sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdx])
-            
+
+            failureModeTopIdxDec = np.argsort(-sequential_statistics[i,:])[:self.decisionchart]  
+            sequential_statistics_topRsum[i] = np.sum(sequential_statistics[i,failureModeTopIdxDec])
             if L != -1:
                 if sequential_statistics_topRsum[i]>L and i>T0:
                     break

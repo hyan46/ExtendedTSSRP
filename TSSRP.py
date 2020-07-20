@@ -6,7 +6,7 @@ class TSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
     """
-    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'):  
+    def __init__(self, p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2',selectmode='indi',decisionchart = 1):  
         """
         srp is the main class of the library 
         Input: 
@@ -18,8 +18,9 @@ class TSSRP(SRPAbstract):
         - Ks: Number of selected failure mode
         - L: control limit, set to -1 if not initialized yet.
         """
-        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode)
-    
+        super().__init__(p, c, k, M, nsensors, Ks, L, chart, mode, selectmode, decisionchart)
+
+            
     def compute_log_LRT(self,a,x):
         """
         Compute the log liklihood ratio of 
@@ -44,12 +45,13 @@ class TSSRP(SRPAbstract):
 
         c = self.c
         nsensors = self.nsensors
-
         if self.mode == 'T2':
             sensingIdx = failureModeTopIdx
         elif self.mode == 'T1':
             individualS = np.sum(np.exp(r[failureModeTopIdx]))
             sensingIdx = np.argsort(-individualS)[:nsensors]  
+        elif self.mode == 'full':
+            sensingIdx = np.arange(nsensors)
         return sensingIdx
 
 
