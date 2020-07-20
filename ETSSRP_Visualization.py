@@ -48,6 +48,8 @@ ifailuremode = 14
 # plt.plot(B1)
 plt.imshow(M[:,ifailuremode].reshape([30,30]))
 
+M.shape
+
 plt.plot(B1)
 
 plt.imshow((M[:,3] + M[:,11] +  M[:,22]).reshape([30,30]))
@@ -86,7 +88,7 @@ plt.plot(M[:19])
 
 # +
 from ExtendedTSSRP import ExtendedTSSRP
-from TSSRP import TSSRP
+kfrom TSSRP import TSSRP
 from Oracle import Oracle
 from spc import spc
 truesensidx = np.arange(nsensors)
@@ -108,6 +110,10 @@ model_name = ['E_srp_T2','E_cusum','E_srp_T1','E_srp_T2_mean','E_cusum_mean','sr
 #experiment_log['model_name'] = model_name
 # -
 
+
+
+
+
 # # Result Visualization
 
 # +
@@ -116,6 +122,7 @@ import matplotlib.pyplot as plt
 T0 = 100
 Tmax = 200
 delta = 1
+seed_list_OC = [0,2,5]
 x = data_gen_func1(3, Tmax, seed_list_OC, T0, delta)
 
 imodel = 0
@@ -123,6 +130,8 @@ model = model_all[imodel]
 
 sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i,sequential_statistics= model.compute_monitoring_statistics(x[0],T0,-1)
 # -
+
+x[0].shape
 
 # ## Control Chart
 # The control chart starts to increase around time 100, which is the time of change.

@@ -38,10 +38,18 @@ experiment_log = {'p':p, 'c':c, 'k': c, 'nrun_IC':nrun_IC, 'nrum_OC':nrun_OC, 'n
 
 experiment_log
 
+# +
 
-# ## Define data generation Functions
+M.shape
 
 # +
+
+
+## Define data generation Functions
+
+# +
+
+
 def data_gen_func0(n_batch, Tmax, seed):
     # Generate normal samples
     np.random.seed(seed)    
@@ -61,13 +69,14 @@ def data_gen_func1(n_batch, Tmax, seed, T0, delta):
 
 
 
+
 # +
 from ExtendedTSSRP import ExtendedTSSRP
 from TSSRP import TSSRP
 from Oracle import Oracle
 from spc.spc import spc
 truesensidx = np.arange(nsensors)
-nmodels = 4
+nmodels = 5
 model_all = [[] for i in range(nmodels)]
 
 # p, c, k, M, nsensors, Ks, L=-1, chart = 'srp',mode = 'T2'
@@ -76,10 +85,13 @@ model_all[0] = ExtendedTSSRP(p, c, k,M,nsensors,Ks,L=-1,chart = 'srp',mode='T2')
 model_all[1] = ExtendedTSSRP(p, c, k,M,nsensors,Ks,L=-1,chart = 'srp',mode='T2',sample_mode = 'mean')
 model_all[2] = ExtendedTSSRP(p, c, k,M,nsensors,Ks,L=-1,chart = 'cusum')
 model_all[3] = TSSRP(p, c, p,M,nsensors,Ks,L=-1,chart='srp',mode='T2')
+model_all[4] = TSSRP(p, c, p,M,nsensors,Ks,L=-1,chart='srp',mode='full',decisionchart='topR_T2')
 
-model_name = ['E_srp_T2','E_srp_mean','E_cusum','srp_T2']
+model_name = ['E_srp_T2','E_srp_mean','E_cusum','srp_T2','srp_full']
 experiment_log['model_name'] = model_name
 # -
+
+
 
 # ### Phase I Analysis 
 
@@ -154,6 +166,24 @@ for i in [0,1,3]:
     plt.ylabel('ARL_1')
     plt.legend()
 # -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
