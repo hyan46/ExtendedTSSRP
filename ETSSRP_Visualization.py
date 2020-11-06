@@ -15,18 +15,17 @@
 
 # # Simulation Setup
 
-# +
 import numpy as np
 from Bspline import bsplineBasis
-
-#case = 'nonoverlap'
-case = 'spline'
+import matplotlib.pyplot as plt
+case = 'nonoverlap'
+#case = 'spline'
 if case == 'nonoverlap':
-    p = 900 # Number of dimensions
+    p = 1000 # Number of dimensions
     c = 1 # Target meanshift is c * M
-    k = 30 # Number of failuer Modes
+    k = 50 # Number of failuer Modes
     seed_list_OC = 20 # Seed of data generation
-    sel_failure_mode = [9,19,29]    #  Failure Mode
+    sel_failure_mode = [3,11,22]    #  Failure Mode
     M = np.kron(np.eye(k),np.ones((int(p/k),1))) # Mean Failure Modes
 else:
     p = 900
@@ -42,17 +41,11 @@ nsensors = 5 # Number of selected sensors
 ARL0 = 200 # Target ARL-IC
 Tmax = 500 # Maximum length
 
-# -
 
-ifailuremode = 14
 # plt.plot(B1)
-plt.imshow(M[:,ifailuremode].reshape([30,30]))
-
-M.shape
-
-plt.plot(B1)
-
-plt.imshow((M[:,3] + M[:,11] +  M[:,22]).reshape([30,30]))
+plt.imshow(M[:,sel_failure_mode].sum(1).reshape([50,20]),aspect='auto')
+plt.axis('off')
+plt.savefig('true_anomaly.eps')
 
 
 # ## Data generation Function
@@ -88,7 +81,7 @@ plt.plot(M[:19])
 
 # +
 from ExtendedTSSRP import ExtendedTSSRP
-kfrom TSSRP import TSSRP
+from TSSRP import TSSRP
 from Oracle import Oracle
 from spc import spc
 truesensidx = np.arange(nsensors)
@@ -129,9 +122,29 @@ imodel = 0
 model = model_all[imodel]
 
 sequential_statistics_topRsum, sensor_selection_history, failure_mode_history, i,sequential_statistics= model.compute_monitoring_statistics(x[0],T0,-1)
-# -
 
-x[0].shape
+# +
+from collections import Counter
+count_distr = Counter(sensor_selection_history[:T0].reshape(-1) ).items()
+
+distr = np.zeros(1000)
+for i,v in count_distr:
+    distr[int(i)] = v
+plt.imshow(distr.reshape(50,20),aspect='auto')
+plt.axis('off')
+plt.savefig('IC_long.eps')
+
+# +
+from collections import Counter
+count_distr = Counter(sensor_selection_history[T0:].reshape(-1) ).items()
+
+distr = np.zeros(1000)
+for i,v in count_distr:
+    distr[int(i)] = v
+plt.imshow(distr.reshape(50,20),aspect='auto')
+plt.axis('off')
+plt.savefig('OC_long.eps')
+# -
 
 # ## Control Chart
 # The control chart starts to increase around time 100, which is the time of change.
@@ -147,17 +160,52 @@ plt.imshow(sequential_statistics,aspect='auto')
 # ## Look into each SRP statistics for different failure mode
 #
 
-for plotfailuremode in [0]+ sel_failure_mode:
+# +
+import matplotlib.pyplot as plt
+
+SMALL_SIZE = 15
+MEDIUM_SIZE = 15
+BIGGER_SIZE = 20
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+# -
+
+for plotfailuremode in [5,22]:
     arr = np.array([plotfailuremode in i for i in sensor_selection_history])
     plt.figure()    
-    plt.plot(sequential_statistics[:,plotfailuremode],label='SRP statistics')
+    plt.plot(sequential_statistics[:,plotfailuremode],'r',label='Monitoring statistics')
     mode = (sensor_selection_history/(p/k)).astype(int)
     numSensorInFailureMode = np.zeros(Tmax)
     for ii,i in enumerate(mode):
         numSensorInFailureMode[ii] = np.sum([j ==plotfailuremode for j in i])
-    plt.title('Failure Mode {} SRP statistics'.format(plotfailuremode))
-    _ = plt.plot(numSensorInFailureMode,label = '# of Observed Sensors')
+    idx = np.where(numSensorInFailureMode)[0]
+    if plotfailuremode == 5:
+        plt.title('Potential Failure Mode')
+        plt.ylim((0,5))
+        _ = plt.scatter(idx,numSensorInFailureMode[idx]*0+2,label = 'Observed Sensor',c='black')
+    elif plotfailuremode == 22:
+        plt.title('True Failure Mode')
+        _ = plt.scatter(idx,numSensorInFailureMode[idx]*0+40,label = 'Observed Sensor',c='black')        
+    plt.axvline(x=100,color='k',linestyle='--')
 
+    plt.legend()
+    plt.savefig(str(plotfailuremode)+'.eps')
+
+
+
+
+
+
+
+
+plt.plot(sequential_statistics[:130,0])
+plt.plot(sequential_statistics[:130,22])
 
 # ## Number of observed sensors in the failure mode
 # The number of observed sensor in different failure mode increases when we passes 100. 
