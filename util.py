@@ -30,6 +30,7 @@ def greedy(f,ntotal,nsensors):
     x_best = np.array([1,0,1,0])
     f(x_best) # Should be 52, which is larger than 30
     ''' 
+    i_all = []
     MIN_VALUES = np.NINF  # Number negative infinity
     x_sol = np.zeros(ntotal)
     for i_iter in range(nsensors):   # Search sensor one-by-one
@@ -40,6 +41,6 @@ def greedy(f,ntotal,nsensors):
             f_proposed[j] = f(x_proposed)
         i_next = np.argmax(f_proposed)
         x_sol[i_next] = 1
-        
-    return x_sol
+        i_all.append(i_next)        
+    return i_all
 

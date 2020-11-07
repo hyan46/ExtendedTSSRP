@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.special import logsumexp 
 from srpabstract import SRPAbstract
+from util import greedy
 
+import pdb
 class ExtendedTSSRP(SRPAbstract):
     """
     Extended the SRPAbstract class
@@ -87,8 +89,7 @@ class ExtendedTSSRP(SRPAbstract):
             p = S.shape[0]
             f= lambda a: logsumexp(S.T@a)      
             sensingIdx = greedy(f,p,nsensors)
-            sensingIdx = sensingIdx.astype(int)
         return sensingIdx
 
 
-    
+
