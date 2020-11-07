@@ -49,6 +49,16 @@ class SRPAbstract:
         """        
         pass
     
+    def log1pexp(r):
+        zr = r * 0
+        for i,ir in enumerate(zr):
+            if ir <100:
+                zr[i] = np.log1p(np.exp(ir))
+            else:
+                zr[i] = ir
+        return zr
+            
+
     def compute_monitoring_statistics(self,x,T0,L):
         """        
         Compute monitoring statistics
@@ -80,7 +90,7 @@ class SRPAbstract:
         
         for i in range(Tmax):
             if self.chart == 'srp':
-                sequential_statistics[i,:] = np.log1p(np.exp(sequential_statistics[i-1,:])) + self.compute_log_LRT(a,x[[i],:].T)
+                sequential_statistics[i,:] = SRPAbstract.log1pexp(sequential_statistics[i-1,:]) + self.compute_log_LRT(a,x[[i],:].T)
             elif self.chart == 'cusum':
                 sequential_statistics[i,:] = np.maximum(sequential_statistics[i-1,:] + self.compute_log_LRT(a,x[[i],:].T),0)
                 

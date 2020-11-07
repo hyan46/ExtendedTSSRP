@@ -36,7 +36,16 @@ class ExtendedTSSRP(SRPAbstract):
         elif self.selectmode == 'cs':
             E = 1
         return result
-
+    
+    def log1pexp(r):
+        zr = r * 0
+        for i,ir in enumerate(zr):
+            if ir <100:
+                zr[i] = np.log1p(np.exp(ir))
+            else:
+                zr[i] = ir
+        return zr
+            
 
     def compute_index(self,failureModeTopIdx,r=1):
         """        
@@ -68,13 +77,13 @@ class ExtendedTSSRP(SRPAbstract):
             sensingIdx = np.argsort(-individualS)[:nsensors]  
         elif mode == 'T1_Max':
             E_sample = 2*c*M*x_sample - c**2*M**2 
-            S = np.log1p(np.exp(r))[np.newaxis,:]*E_sample
+            S = ExtendedTSSRP.log1pexp(r)[np.newaxis,:]*E_sample
             S_sort= -np.sort(-S, axis = 0)
             kmax = np.argmax(np.sum(S_sort[:nsensors,:] ,0))
             sensingIdx = np.argsort(-S[:,kmax])[:nsensors]
         elif mode == 'T1_App':
             E_sample = 2*c*M*x_sample - c**2*M**2 
-            S = np.log1p(np.exp(r))[np.newaxis,failureModeTopIdx]*E_sample[:,failureModeTopIdx]
+            S = ExtendedTSSRP.log1pexp(r)[np.newaxis,failureModeTopIdx]*E_sample[:,failureModeTopIdx]
             p = S.shape[0]
             f= lambda a: logsumexp(S.T@a)      
             sensingIdx = greedy(f,p,nsensors)
