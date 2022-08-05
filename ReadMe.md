@@ -1,7 +1,7 @@
 # Readme
 
 ## Code
-1. [srpabstract.py](model/srpabstract.py]: A class that do SRP statistics
+1. [srpabstract.py](model/srpabstract.py): A class that do SRP statistics
 
 - Initialization: 
   - p: Number of dimensions
