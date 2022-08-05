@@ -59,8 +59,8 @@ Other implemented method:
 
 ## Dataset
 There are four datasets that used in the paper: 
-1. Thermal imaging monitoring of 3D printing: The dataset used is publically available at [figshare Scenario 3](https://figshare.com/articles/dataset/DATASET_from_Spatially_weighted_PCA_for_monitoring_video_image_data_with_application_to_additive_manufacturing_by_B_M_Colosimo_and_M_Grasso_JQT_2018/7092863). 
-
+1. The dataset is offered in [solar.mat](data/solar.mat). Thermal imaging monitoring of 3D printing: The dataset used is publically available at [figshare Scenario 3](https://figshare.com/articles/dataset/DATASET_from_Spatially_weighted_PCA_for_monitoring_video_image_data_with_application_to_additive_manufacturing_by_B_M_Colosimo_and_M_Grasso_JQT_2018/7092863). 
+data
 1. Solar Flare Dataset outbreak video frames
 2. COVID-19 monitoring of different counties in WA
 
