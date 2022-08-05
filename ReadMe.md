@@ -3,7 +3,9 @@
 There are four datasets that used in the paper: 
 1. Solar Flare Dataset outbreak video frames
 2. COVID-19 monitoring of different counties in WA
-3. Thermal imaging monitoring of 3D printing: The dataset is publically available at (https://figshare.com/articles/dataset/DATASET_from_Spatially_weighted_PCA_for_monitoring_video_image_data_with_application_to_additive_manufacturing_by_B_M_Colosimo_and_M_Grasso_JQT_2018/7092863)[figshare]
+3. Thermal imaging monitoring of 3D printing: The dataset is publically available at [figshare](https://figshare.com/articles/dataset/DATASET_from_Spatially_weighted_PCA_for_monitoring_video_image_data_with_application_to_additive_manufacturing_by_B_M_Colosimo_and_M_Grasso_JQT_2018/7092863). 
+
+
 ## Code
 1. srpabstract.py: A class that do SRP statistics
 
