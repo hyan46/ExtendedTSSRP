@@ -1,7 +1,7 @@
 # Readme
 
 ## Code
-1. srpabstract.py: A class that do SRP statistics
+1. [srpabstract.py](model/srpabstract.py]: A class that do SRP statistics
 
 - Initialization: 
   - p: Number of dimensions
@@ -22,7 +22,7 @@ Other implemented method:
 - `compute_monitoring_statistics`: Computed SRP statistics using the Top-R rules
 - `compute_monitor_batch`: Compute the monitoring results for batch of samples
 
-2. TSSRP.py: Implement original TSSRP method
+2. [TSSRP.py](model/TSSRP.py): Implement original TSSRP method
 
 - srpabstract initialization except 
   - mode: which testing statistics to use, Default to `T2`
@@ -31,7 +31,7 @@ Other implemented method:
 
 
 
-3. ExtendedTSSRP.py
+3. [ExtendedTSSRP.py](model/ExtendedTSSRP.py)
 
 - srpabstract initialization except 
   - mode: which testing statistics to use, Default to `T2`
@@ -41,7 +41,7 @@ Other implemented method:
   - Mode `T1` , using summation of  SRP, no closed forms and using greedy algorithm
   - Mode `T1_Max` , using summation of  SRP, no closed formsusing Max approximation
 
-4. spc.py: A generic class for process monitoring using simulation 
+4. [spc.py](spc/spc.py): A generic class for process monitoring using simulation 
 
 - Initialization: 
   - `monitor_statistics`: given input of n_batch * Tmax * dimensions, return the monitoring statistics of size n_batch * Tmax denote
