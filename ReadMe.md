@@ -1,4 +1,10 @@
 # Readme
+## Dataset
+There are four datasets that used in the paper: 
+1. Solar Flare Dataset outbreak video frames
+2. COVID-19 monitoring of different counties in WA
+3. Thermal imaging monitoring of 3D printing
+## Code
 1. srpabstract.py: A class that do SRP statistics
 
 - Initialization: 
