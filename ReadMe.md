@@ -1,5 +1,8 @@
 # Readme
 
+This is the code for the paper "Adaptive Partially-Observed Sequential Change Detection and Isolation".
+The paper is accepted in Technometrics and the Arxiv version is provided [here](https://arxiv.org/abs/2208.08855).
+
 ## Code
 1. [srpabstract.py](model/srpabstract.py): A class that do SRP statistics
 
